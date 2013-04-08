@@ -63,6 +63,7 @@
     infoLabel.shadowColor = [UIColor blackColor];
     infoLabel.shadowOffset = CGSizeMake(0, 1);
     [contentView addSubview:infoLabel];
+    contentView.backgroundColor = [UIColor blackColor];
 
     [[KGModal sharedInstance] showWithContentView:contentView andAnimated:YES];
 }

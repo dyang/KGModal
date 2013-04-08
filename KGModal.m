@@ -20,6 +20,9 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
 @interface KGModalContainerView : UIView
 @property (weak, nonatomic) CALayer *styleLayer;
 @property (strong, nonatomic) UIColor *modalBackgroundColor;
+
+- (void)addContentView:(UIView *)view;
+
 @end
 
 @interface KGModalCloseButton : UIButton
@@ -93,18 +96,17 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
     self.window.rootViewController = viewController;
     self.viewController = viewController;
     
-    CGFloat padding = 17;
+    CGFloat padding = 0;
     CGRect containerViewRect = CGRectInset(contentView.bounds, -padding, -padding);
     containerViewRect.origin.x = containerViewRect.origin.y = 0;
     containerViewRect.origin.x = round(CGRectGetMidX(self.window.bounds)-CGRectGetMidX(containerViewRect));
     containerViewRect.origin.y = round(CGRectGetMidY(self.window.bounds)-CGRectGetMidY(containerViewRect));
     KGModalContainerView *containerView = [[KGModalContainerView alloc] initWithFrame:containerViewRect];
-    containerView.modalBackgroundColor = self.modalBackgroundColor;
     containerView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin|UIViewAutoresizingFlexibleRightMargin|
     UIViewAutoresizingFlexibleTopMargin|UIViewAutoresizingFlexibleBottomMargin;
     containerView.layer.rasterizationScale = [[UIScreen mainScreen] scale];
     contentView.frame = (CGRect){padding, padding, contentView.bounds.size};
-    [containerView addSubview:contentView];
+    [containerView addContentView:contentView];
     [viewController.view addSubview:containerView];
     self.containerView = containerView;
     
@@ -243,25 +245,37 @@ NSString *const KGModalGradientViewTapped = @"KGModalGradientViewTapped";
 
 @end
 
+@interface KGModalContainerView ()
+
+@property(nonatomic, strong) UIView *roundCornerView;
+
+@end
+
 @implementation KGModalContainerView
 
 - (id)initWithFrame:(CGRect)frame{
     if(!(self = [super initWithFrame:frame])){
         return nil;
     }
-    
-    CALayer *styleLayer = [[CALayer alloc] init];
-    styleLayer.cornerRadius = 4;
-    styleLayer.shadowColor= [[UIColor blackColor] CGColor];
-    styleLayer.shadowOffset = CGSizeMake(0, 0);
-    styleLayer.shadowOpacity = 0.5;
-    styleLayer.borderWidth = 1;
-    styleLayer.borderColor = [[UIColor whiteColor] CGColor];
-    styleLayer.frame = CGRectInset(self.bounds, 12, 12);
-    [self.layer addSublayer:styleLayer];
-    self.styleLayer = styleLayer;
-    
+
+    // Shadow
+    self.layer.cornerRadius = 6;
+    self.layer.shadowColor= [[UIColor blackColor] CGColor];
+    self.layer.shadowOffset = CGSizeMake(0, 0);
+    self.layer.shadowOpacity = .5;
+
+    // Round corners
+    self.roundCornerView = [[UIView alloc] initWithFrame:self.bounds];
+    self.roundCornerView.backgroundColor = [UIColor clearColor];
+    self.roundCornerView.layer.cornerRadius = 6;
+    self.roundCornerView.clipsToBounds = YES;
+    [self addSubview:self.roundCornerView];
+
     return self;
+}
+
+- (void)addContentView:(UIView *)view {
+    [self.roundCornerView addSubview:view];
 }
 
 - (void)setModalBackgroundColor:(UIColor *)modalBackgroundColor{
